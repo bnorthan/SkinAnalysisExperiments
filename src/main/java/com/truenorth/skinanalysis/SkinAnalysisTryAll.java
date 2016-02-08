@@ -1,4 +1,4 @@
-package com.truenorth;
+package com.truenorth.skinanalysis;
 
 import java.awt.Color;
 
@@ -9,6 +9,8 @@ import org.scijava.module.Module;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.UIService;
+
+import com.truenorth.colorspace.LabCommand;
 
 import ij.IJ;
 import ij.ImagePlus;

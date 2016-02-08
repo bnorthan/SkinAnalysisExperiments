@@ -1,11 +1,11 @@
-package com.truenorth;
+package com.truenorth.utils;
 
 import java.io.File;
 import java.util.ArrayList;
 
 public class FileIOUtils {
 
-	static ArrayList<File> getFileListFromDirectory(String directory, String extension) {
+	public static ArrayList<File> getFileListFromDirectory(String directory, String extension) {
 		ArrayList<File> imageList=new ArrayList<File>();
 		
 		File folder = new File(directory);
@@ -26,7 +26,7 @@ public class FileIOUtils {
 		return imageList;
 	}
 	
-	static String getExtension(String fileName) {
+	public static String getExtension(String fileName) {
 		String extension = "";
 
 		int i = fileName.lastIndexOf('.');

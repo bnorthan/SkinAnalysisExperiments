@@ -1,10 +1,12 @@
-package com.truenorth;
+package com.truenorth.skinanalysis;
 
 import org.scijava.command.Command;
 import org.scijava.command.CommandService;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+
+import com.truenorth.batch.AbstractBatchCommand;
 
 import ij.ImagePlus;
 import net.imagej.Dataset;
@@ -17,7 +19,7 @@ public class SkinAnalysisBatchCommand extends AbstractBatchCommand {
 	@Parameter
 	CommandService command;
 
-	void processImage(ImagePlus imgPlus, Dataset dataSet) {
+	protected void processImage(ImagePlus imgPlus, Dataset dataSet) {
 		try {
 			command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "dataset", dataSet, "show", false, "ignoreEdge",
 					false, "method", "Default", "erodeCycles", 3).get();

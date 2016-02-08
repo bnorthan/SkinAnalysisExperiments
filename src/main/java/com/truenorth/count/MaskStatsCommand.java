@@ -1,4 +1,4 @@
-package com.truenorth;
+package com.truenorth.count;
 
 import org.scijava.ItemIO;
 import org.scijava.command.Command;

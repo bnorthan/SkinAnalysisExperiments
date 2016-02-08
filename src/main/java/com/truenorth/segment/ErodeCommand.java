@@ -1,4 +1,4 @@
-package com.truenorth;
+package com.truenorth.segment;
 
 import org.scijava.command.Command;
 import org.scijava.log.LogService;

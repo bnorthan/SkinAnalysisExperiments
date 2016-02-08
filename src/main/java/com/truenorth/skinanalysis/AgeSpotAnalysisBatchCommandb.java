@@ -1,4 +1,4 @@
-package com.truenorth;
+package com.truenorth.skinanalysis;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,18 +47,21 @@ public class AgeSpotAnalysisBatchCommandb implements Command {
 
 		String strRoutine = "spot_autoD0_D84";
 
-		String[] imageSets = new String[] { "001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011",
-				"012", "013", "014", "015", "016", "017", "018", "019", "020" };
+		/*
+		 * String[] imageSets = new String[] { "001", "002", "003", "004",
+		 * "005", "006", "007", "008", "009", "010", "011", "012", "013", "014",
+		 * "015", "016", "017", "018", "019", "020" };
+		 */
 
-		// String[] imageSets = new String[] { "001", "002"};
+		String[] imageSets = new String[] { "010", "011" };
 
 		String[] ids_firstpass = new String[] { "D0", "D84" };
 		String[] ids = new String[] { "D28", "D56", "D84" };
 
 		for (String set : imageSets) {
 
-			String outPath = "/home/bnorthan/images/evalulab/Analysis_01_22_2016/spot_routine_b";
-			String strCSVMaster = "/home/bnorthan/images/evalulab/Analysis_01_22_2016/stats_spot_routine_b.csv";
+			String outPath = "/home/bnorthan/images/evalulab/Analysis_02_08_2016/spot_routine_b";
+			String strCSVMaster = "/home/bnorthan/images/evalulab/Analysis_02_08_2016/stats_spot_routine_b.csv";
 
 			Path dir = Paths.get(baseDirectory, set);
 			System.out.println(dir.toString());

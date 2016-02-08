@@ -1,4 +1,4 @@
-package com.truenorth;
+package com.truenorth.count;
 
 import java.util.ArrayList;
 
@@ -13,7 +13,7 @@ import ij.measure.Measurements;
 import ij.process.ImageStatistics;
 
 @Plugin(type = Command.class, headless = true)
-public class FilterParticlesCommand implements Command {
+public class FilterEdgeParticlesCommand implements Command {
 
 	@Parameter
 	private ImagePlus imp;

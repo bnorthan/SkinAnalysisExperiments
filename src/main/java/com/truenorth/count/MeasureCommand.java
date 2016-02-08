@@ -1,4 +1,4 @@
-package com.truenorth;
+package com.truenorth.count;
 
 import java.util.ArrayList;
 import java.util.Hashtable;

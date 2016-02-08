@@ -1,4 +1,4 @@
-package com.truenorth;
+package com.truenorth.skinanalysis;
 
 import java.awt.Color;
 import java.nio.file.Files;
@@ -17,13 +17,23 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.UIService;
 
+import com.truenorth.colorspace.LabCommand;
+import com.truenorth.colorspace.RgbCommand;
+import com.truenorth.count.CountParticles;
+import com.truenorth.count.FilterEdgeParticlesCommand;
+import com.truenorth.count.MaskStatsCommand;
+import com.truenorth.data.WriteCSVCommand2;
+import com.truenorth.segment.ErodeCommand;
+import com.truenorth.utils.ROIUtils;
+
 import ij.IJ;
 import ij.ImagePlus;
 import ij.gui.Roi;
 import ij.plugin.Duplicator;
 import ij.plugin.frame.RoiManager;
+import net.imagej.ops.Op;
 import net.imagej.ops.OpService;
-import net.imglib2.Cursor;
+import net.imagej.ops.Ops;
 import net.imglib2.histogram.Histogram1d;
 import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
@@ -156,23 +166,14 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 				b.not();
 			}
 
-			// HACK: TODO: use converter op
-			// //////////////////////////////////////////////////////////////////////
+			// it will be more convenient if the output is unsigned byte type
 			Img<UnsignedByteType> byteImgThresholded = ops.create().img(bitImgThresholded, new UnsignedByteType());
+		
+			// so create a scaler op
+			Op scale = ops.op(Ops.Convert.Scale.class, UnsignedByteType.class, BitType.class);
 
-			Cursor<BitType> bitCursor = bitImgThresholded.cursor();
-			Cursor<UnsignedByteType> byteCursor = byteImgThresholded.cursor();
-
-			while (bitCursor.hasNext()) {
-				bitCursor.fwd();
-				byteCursor.fwd();
-
-				if (bitCursor.get().get()) {
-					byteCursor.get().setReal(255);
-				}
-			}
-			/// END HACK
-			/// ///////////////////////////////////////////////////////////////////////////////////////////////////
+			// and use a map to apply the scaling to each pixel
+			ops.map(byteImgThresholded, bitImgThresholded, scale);
 
 			// go back to IJ1
 			ImagePlus thresholded = ImageJFunctions.wrapUnsignedByte(byteImgThresholded, "thresholded");
@@ -195,8 +196,8 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 					"intensity", ImageJFunctions.wrapFloat(L)).get();
 
 			// create a header for .csv file
-			final ArrayList<Object> header = new ArrayList<Object>(Arrays.asList("image name", "method", "percent", "r_inside", "r_outside", "g_inside", "g_outside",
-					"b_inside", "b_outside" ));
+			final ArrayList<Object> header = new ArrayList<Object>(Arrays.asList("image name", "method", "percent",
+					"r_inside", "r_outside", "g_inside", "g_outside", "b_inside", "b_outside"));
 
 			// create a row of data
 			final ArrayList<Object> data = new ArrayList<Object>();
@@ -217,7 +218,7 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			ImagePlus b = (ImagePlus) module.getOutput("B");
 
 			ImagePlus[] rgb = { r, g, b };
-			
+
 			// for each channel in rgb
 			for (ImagePlus c : rgb) {
 				// calculate stats inside and outside mask
@@ -235,31 +236,22 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 
 			// create an roi manager
 			RoiManager roim = new RoiManager(true);
-			// String outptutDirectory =
-
-			Hashtable<String, ArrayList<Double>> table = new Hashtable<String, ArrayList<Double>>();
 
 			// run the count particles command
 			module = command.run(CountParticles.class, false, "imgPlus", thresholded, "minSize", minSize, "maxSize",
-					maxSize, "minCircularity", 0.0, "maxCircularity", 1.0, "roim", roim, "table", table).get();
+					maxSize, "minCircularity", 0.0, "maxCircularity", 1.0, "roim", roim, "table", null).get();
 
 			// print the number of rois found
 			logger.info("num rois: " + roim.getRoisAsArray().length);
 
-			// get ROIs
+			// get ROIs as array
 			Roi[] rois = roim.getRoisAsArray();
 
-			// measure ROIs using L channel as intensity
-			module = command.run(MeasureCommand.class, false, "imp", L, "rois", rois, "table", table).get();
-
-			// filter the ROIs
-			module = command.run(FilterParticlesCommand.class, false, "imp", L, "rois", rois, "edgeThresh", edgeThresh)
+			// filter out ROIs close to edge
+			module = command.run(FilterEdgeParticlesCommand.class, false, "imp", L, "rois", rois, "edgeThresh", edgeThresh)
 					.get();
 
 			ArrayList<Roi> filteredRois = (ArrayList<Roi>) module.getOutput("filteredRois");
-
-			// print the ROIs
-			// command.run(PrintTableCommand.class, false, "table", table);
 
 			// draw ROIs on cropped image
 			ROIUtils.drawParticlesOnImage(croppedPlus, filteredRois, Color.CYAN);
@@ -283,24 +275,22 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			String croppedName = fullName.toString() + "_cropped" + ".tif";
 
 			System.out.println("the path and name is:" + strCSVName);
-
 			IJ.save(croppedPlus, croppedName);
 
-			//command.run(WriteCSVCommand.class, true, "fileName", strCSVName, "table", table).get();
-
+			// if csv specified write measurements to the file
 			if (strCSVMaster != null) {
-				
+
 				if (!Files.exists(Paths.get(strCSVMaster))) {
 					command.run(WriteCSVCommand2.class, true, "fileName", strCSVMaster, "data", header).get();
 				}
-				
+
 				command.run(WriteCSVCommand2.class, true, "fileName", strCSVMaster, "data", data).get();
 			}
 
-			//if (!show) {
-				croppedPlus.changes = false;
-				croppedPlus.close();
-		//	}
+			// if (!show) {
+			croppedPlus.changes = false;
+			croppedPlus.close();
+			// }
 
 		} catch (Exception ex) {
 			System.out.println("exception: " + ex);

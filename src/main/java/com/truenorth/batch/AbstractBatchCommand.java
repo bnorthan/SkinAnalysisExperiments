@@ -1,4 +1,4 @@
-package com.truenorth;
+package com.truenorth.batch;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -7,6 +7,8 @@ import org.scijava.command.Command;
 import org.scijava.io.IOService;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
+
+import com.truenorth.utils.FileIOUtils;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -60,6 +62,6 @@ public abstract class AbstractBatchCommand implements Command {
 		logger.info("finished");
 	}
 
-	abstract void processImage(ImagePlus imgPlus, Dataset dataset);
+	protected abstract void processImage(ImagePlus imgPlus, Dataset dataset);
 
 }

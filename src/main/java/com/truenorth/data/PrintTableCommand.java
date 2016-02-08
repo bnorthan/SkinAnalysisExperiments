@@ -1,5 +1,5 @@
 
-package com.truenorth;
+package com.truenorth.data;
 
 import java.util.ArrayList;
 import java.util.Enumeration;

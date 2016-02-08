@@ -1,4 +1,4 @@
-package com.truenorth;
+package com.truenorth.count;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -18,9 +18,7 @@ import ij.plugin.frame.RoiManager;
 @Plugin(type = Command.class, headless = true, menuPath = "Plugins>Skin Analysis>CountParticles")
 public class CountParticles implements Command {
 
-	@Parameter
-	LogService logger;
-
+	
 	@Parameter
 	private ImagePlus imgPlus;
 

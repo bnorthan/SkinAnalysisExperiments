@@ -1,5 +1,5 @@
 
-package com.truenorth;
+package com.truenorth.data;
 
 import java.io.FileWriter;
 import java.io.IOException;

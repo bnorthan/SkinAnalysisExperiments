@@ -1,4 +1,4 @@
-package com.truenorth;
+package com.truenorth.skinanalysis;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,14 +15,16 @@ import org.scijava.ui.UIService;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.io.DirectoryChooser;
-import net.imagej.Dataset;
 
 /**
  * 
  * Test starting point
  */
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Pregnancy Mask Jan-2015")
-public class PregnancyMaskBatchCommand implements Command {
+@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Skin Analysis Jan-2015-a")
+public class AgeSpotAnalysisBatchCommanda implements Command {
+
+	@Parameter
+	private UIService ui;
 
 	@Parameter
 	private LogService logger;
@@ -33,9 +35,6 @@ public class PregnancyMaskBatchCommand implements Command {
 	@Parameter
 	CommandService command;
 
-	@Parameter
-	UIService ui;
-
 	/**
 	 * 
 	 */
@@ -44,21 +43,23 @@ public class PregnancyMaskBatchCommand implements Command {
 		DirectoryChooser dialog = new DirectoryChooser("test");
 
 		String baseDirectory = dialog.getDirectory();
-		
-		String[] imageSets = new String[] { "001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011",
-				"012", "013", "014", "015", "016", "017", "018", "019", "020" };
+		String strRoutine="spot_autoD0";
 
-	
-	//	String[] imageSets = new String[] { "003","007","010", "014","016","017", "019" };
-		//String[] imageSets = new String[] { "003" };
+	/*	String[] imageSets = new String[] { "001", "002", "003", "004",
+		 "005", "006", "007", "008", "009", "010", "011",
+		 "012", "013", "014", "015", "016", "017", "018", "019", "020" };
+*/
+		String[] imageSets = new String[] { "003","007","010", "014","016","017", "019" };
+
+		//String[] imageSets = new String[] { "003", "004"};
 
 		String id1 = "D0";
 		String[] ids = new String[] { "D0", "D28", "D56", "D84" };
 
 		for (String set : imageSets) {
 			
-			String outPath = "/home/bnorthan/images/evalulab/Analysis_01_22_2016/mask";
-			String strCSVMaster = "/home/bnorthan/images/evalulab/Analysis_01_22_2016/mask.csv";
+			String outPath = "/home/bnorthan/images/evalulab/Analysis_02_08_2016/spot_routine_a";
+			String strCSVMaster = "/home/bnorthan/images/evalulab/Analysis_02_08_2016/stats_spot_routine_a.csv";
 
 
 			Path dir = Paths.get(baseDirectory, set);
@@ -71,6 +72,7 @@ public class PregnancyMaskBatchCommand implements Command {
 				System.out.println("    " + name);
 
 				ImagePlus imgPlus = IJ.openImage(name);
+
 				imgPlus.show();
 
 				Module module = null;
@@ -78,9 +80,9 @@ public class PregnancyMaskBatchCommand implements Command {
 				if (id.equals(id1)) {
 					try {
 						module = command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "show", false, "ignoreEdge",
-								false, "method", "Default", "mthreshold", 0, "erodeCycles", 0, "minSize", 1, "maxSize",
-								10000000, "outPath", outPath, "edgeThresh", 0, "strCSVMaster", strCSVMaster,
-								"strRoutine", "mask").get();
+								false, "method", "Default", "mthreshold", 0, "erodeCycles", 3, "minSize", 100,
+								"maxSize", 10000000, "outPath", outPath, "edgeThresh", 50, "strCSVMaster", strCSVMaster,
+								"strRoutine", strRoutine).get();
 
 						threshold = (Double) module.getOutput("threshold");
 						System.out.println("Threshold is: " + threshold);
@@ -91,10 +93,11 @@ public class PregnancyMaskBatchCommand implements Command {
 				} else {
 					try {
 						System.out.println("reused threshold is: " + threshold);
-						command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "show", false, "ignoreEdge", false,
-								"method", "Manual", "mthreshold", threshold, "erodeCycles", 0, "minSize", 1, "maxSize",
-								10000000, "outPath", outPath, "edgeThresh", 0, "strCSVMaster", strCSVMaster,
-								"strRoutine", "mask").get();
+						module = command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "show", false, "ignoreEdge",
+								false, "method", "Manual", "mthreshold", threshold, "erodeCycles", 3, "minSize", 100,
+								"maxSize", 10000000, "outPath", outPath, "edgeThresh", 50, "strCSVMaster", strCSVMaster,
+								"strRoutine", strRoutine).get();
+
 					} catch (Exception ex) {
 						System.out.println("exception: " + ex);
 					}

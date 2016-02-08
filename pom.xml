@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>net.imagej</groupId>
 		<artifactId>pom-imagej</artifactId>
-		<version>11.3.0</version>
+		<version>14.4.0</version>
 		<relativePath />
 	</parent>
 
@@ -19,10 +19,9 @@
 	<name>Skin Analysis</name>
 	<description>Utiities and programs for skin analysis</description>
 	
-	<!--<properties>
+	<properties>
 		<scijava.jvm.version>1.8</scijava.jvm.version>
 	</properties>
-	-->
 	
 	<repositories>
 		<repository>

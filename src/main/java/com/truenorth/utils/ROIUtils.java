@@ -1,4 +1,4 @@
-package com.truenorth;
+package com.truenorth.utils;
 
 import java.awt.Color;
 import java.util.List;
