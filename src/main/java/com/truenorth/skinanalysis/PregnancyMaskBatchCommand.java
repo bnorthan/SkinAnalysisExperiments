@@ -21,7 +21,7 @@ import net.imagej.Dataset;
  * 
  * Test starting point
  */
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Pregnancy Mask Jan-2015")
+@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>Skin Analysis>Pregnancy Mask")
 public class PregnancyMaskBatchCommand implements Command {
 
 	@Parameter

@@ -7,7 +7,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import net.imglib2.type.numeric.RealType;
 
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Skin Analysis>HSB")
+@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>ColorSpace>HSB")
 public class HsbCommand<T extends RealType<T>> extends AbstractColorSpaceCommand<T> {
 
 	@Override

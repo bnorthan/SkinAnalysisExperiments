@@ -15,7 +15,7 @@ import ij.measure.ResultsTable;
 import ij.plugin.filter.ParticleAnalyzer;
 import ij.plugin.frame.RoiManager;
 
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Skin Analysis>CountParticles")
+@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>CountParticles")
 public class CountParticles implements Command {
 
 	

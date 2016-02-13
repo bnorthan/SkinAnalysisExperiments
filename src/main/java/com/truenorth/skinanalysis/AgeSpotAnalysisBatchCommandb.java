@@ -20,7 +20,7 @@ import ij.io.DirectoryChooser;
  * 
  * Test starting point
  */
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Skin Analysis Jan-2015-b")
+@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>Skin Analysis>AgeSpotBatch-b")
 public class AgeSpotAnalysisBatchCommandb implements Command {
 
 	@Parameter
@@ -36,7 +36,8 @@ public class AgeSpotAnalysisBatchCommandb implements Command {
 	CommandService command;
 
 	/**
-	 * 
+	 * This routine calculates the threshold as the average between the threshold at day 0 and day 84, then applies that 
+	 * threshold to all images
 	 */
 	@Override
 	public void run() {
@@ -114,12 +115,12 @@ public class AgeSpotAnalysisBatchCommandb implements Command {
 				ImagePlus imgPlus = IJ.openImage(name);
 
 				imgPlus.show();
-
-				Module module = null;
-
+				
 				try {
+
+								
 					System.out.println("reused threshold is: " + threshold);
-					module = command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "show", false, "ignoreEdge",
+					command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "show", false, "ignoreEdge",
 							false, "method", "Manual", "mthreshold", threshold, "erodeCycles", 3, "minSize", 100,
 							"maxSize", 10000000, "outPath", outPath, "edgeThresh", 50, "strCSVMaster", strCSVMaster,
 							"strRoutine", strRoutine).get();

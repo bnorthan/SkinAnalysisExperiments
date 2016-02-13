@@ -20,7 +20,7 @@ import ij.io.DirectoryChooser;
  * 
  * Test starting point
  */
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Skin Analysis Jan-2015-a")
+@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>Skin Analysis>AgeSpotBatch-a")
 public class AgeSpotAnalysisBatchCommanda implements Command {
 
 	@Parameter
@@ -36,7 +36,7 @@ public class AgeSpotAnalysisBatchCommanda implements Command {
 	CommandService command;
 
 	/**
-	 * 
+	 * This routine calculates an automatic threshold on the first image and applies it to all images
 	 */
 	@Override
 	public void run() {

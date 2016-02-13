@@ -27,7 +27,7 @@ import net.imglib2.type.numeric.RealType;
 /**
  * Test starting point
  */
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Skin Analysis Try All")
+@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>Skin Analysis>Try All")
 public class SkinAnalysisTryAll<T extends RealType<T>> implements Command {
 
 	@Parameter

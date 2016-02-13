@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Hashtable;
 
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
@@ -45,17 +44,17 @@ import net.imglib2.type.numeric.real.FloatType;
 /**
  * Test starting point
  */
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Skin Analysis base")
+@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>Skin Analysis>Skin Analysis base")
 public class SkinAnalysis<T extends RealType<T>> implements Command {
 
 	@Parameter
-	private LogService logger;
+	private LogService log;
 
 	@Parameter
 	private OpService ops;
 
 	@Parameter
-	private CommandService command;
+	private CommandService cmd;
 
 	@Parameter
 	private UIService ui;
@@ -108,8 +107,8 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 
 			// print some diagnostics
 			System.out.println("Skin Analysis");
-			logger.info("The current image is, " + imgPlus.getTitle() + "!");
-			logger.info("params: ig:" + ignoreEdge + " m:" + method + " er:" + erodeCycles + " mt:" + mthreshold);
+			log.info("The current image is, " + imgPlus.getTitle() + "!");
+			log.info("params: ig:" + ignoreEdge + " m:" + method + " er:" + erodeCycles + " mt:" + mthreshold);
 
 			// get the roi
 			Roi roi = imgPlus.getRoi();
@@ -126,7 +125,7 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			Module module = null;
 
 			// first run the LAB command
-			module = command.run(LabCommand.class, false, "imgPlus", croppedPlus, "to8bit", false, "show", false).get();
+			module = cmd.run(LabCommand.class, false, "imgPlus", croppedPlus, "to8bit", false, "show", false).get();
 
 			// get L channel
 			ImagePlus L = (ImagePlus) module.getOutput("c1");
@@ -183,16 +182,16 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 
 			// erode command
 			if (erodeCycles > 0) {
-				module = command.run(ErodeCommand.class, false, "imp", thresholded, "erodeCycles", erodeCycles).get();
+				module = cmd.run(ErodeCommand.class, false, "imp", thresholded, "erodeCycles", erodeCycles).get();
 			}
 
-			// HACK: TODO look into this bug, seems we need to duplicate to get
+			// HACK: TODO look into this bug, seems we need to wcate to get
 			// image to update
 			thresholded.updateAndDraw();
 			thresholded = new Duplicator().run(thresholded);
 
 			// this command calculate stats inside and outside the mask
-			module = command.run(MaskStatsCommand.class, true, "mask", ImageJFunctions.wrapByte(thresholded),
+			module = cmd.run(MaskStatsCommand.class, true, "mask", ImageJFunctions.wrapByte(thresholded),
 					"intensity", ImageJFunctions.wrapFloat(L)).get();
 
 			// create a header for .csv file
@@ -212,7 +211,7 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			data.add(module.getOutput("percent"));
 
 			// run rgb command and get r, g and b channels
-			module = command.run(RgbCommand.class, false, "imgPlus", croppedPlus).get();
+			module = cmd.run(RgbCommand.class, false, "imgPlus", croppedPlus).get();
 			ImagePlus r = (ImagePlus) module.getOutput("R");
 			ImagePlus g = (ImagePlus) module.getOutput("G");
 			ImagePlus b = (ImagePlus) module.getOutput("B");
@@ -222,7 +221,7 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			// for each channel in rgb
 			for (ImagePlus c : rgb) {
 				// calculate stats inside and outside mask
-				module = command.run(MaskStatsCommand.class, true, "mask", ImageJFunctions.wrapByte(thresholded),
+				module = cmd.run(MaskStatsCommand.class, true, "mask", ImageJFunctions.wrapByte(thresholded),
 						"intensity", ImageJFunctions.wrapByte(c)).get();
 
 				data.add(module.getOutput("insideIntensity"));
@@ -238,17 +237,17 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			RoiManager roim = new RoiManager(true);
 
 			// run the count particles command
-			module = command.run(CountParticles.class, false, "imgPlus", thresholded, "minSize", minSize, "maxSize",
+			module = cmd.run(CountParticles.class, false, "imgPlus", thresholded, "minSize", minSize, "maxSize",
 					maxSize, "minCircularity", 0.0, "maxCircularity", 1.0, "roim", roim, "table", null).get();
 
 			// print the number of rois found
-			logger.info("num rois: " + roim.getRoisAsArray().length);
+			log.info("num rois: " + roim.getRoisAsArray().length);
 
 			// get ROIs as array
 			Roi[] rois = roim.getRoisAsArray();
 
 			// filter out ROIs close to edge
-			module = command.run(FilterEdgeParticlesCommand.class, false, "imp", L, "rois", rois, "edgeThresh", edgeThresh)
+			module = cmd.run(FilterEdgeParticlesCommand.class, false, "imp", L, "rois", rois, "edgeThresh", edgeThresh)
 					.get();
 
 			ArrayList<Roi> filteredRois = (ArrayList<Roi>) module.getOutput("filteredRois");
@@ -281,10 +280,10 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			if (strCSVMaster != null) {
 
 				if (!Files.exists(Paths.get(strCSVMaster))) {
-					command.run(WriteCSVCommand2.class, true, "fileName", strCSVMaster, "data", header).get();
+					cmd.run(WriteCSVCommand2.class, true, "fileName", strCSVMaster, "data", header).get();
 				}
 
-				command.run(WriteCSVCommand2.class, true, "fileName", strCSVMaster, "data", data).get();
+				cmd.run(WriteCSVCommand2.class, true, "fileName", strCSVMaster, "data", data).get();
 			}
 
 			// if (!show) {

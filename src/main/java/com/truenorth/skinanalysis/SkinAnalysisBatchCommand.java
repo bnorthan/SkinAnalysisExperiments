@@ -11,7 +11,7 @@ import com.truenorth.batch.AbstractBatchCommand;
 import ij.ImagePlus;
 import net.imagej.Dataset;
 
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Skin Analysis Batch")
+@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>Skin Analysis Batch")
 public class SkinAnalysisBatchCommand extends AbstractBatchCommand {
 	@Parameter
 	LogService logger;
