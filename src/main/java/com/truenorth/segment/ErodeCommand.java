@@ -9,7 +9,7 @@ import ij.IJ;
 import ij.ImagePlus;
 import net.imagej.ops.OpService;
 
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>ThresholdErode")
+@Plugin(type = Command.class, headless = true)
 public class ErodeCommand implements Command {
 
 	@Parameter
