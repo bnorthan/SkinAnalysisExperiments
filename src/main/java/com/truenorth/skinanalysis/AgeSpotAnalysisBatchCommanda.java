@@ -58,8 +58,8 @@ public class AgeSpotAnalysisBatchCommanda implements Command {
 
 		for (String set : imageSets) {
 			
-			String outPath = "/home/bnorthan/images/evalulab/Analysis_02_08_2016/spot_routine_a";
-			String strCSVMaster = "/home/bnorthan/images/evalulab/Analysis_02_08_2016/stats_spot_routine_a.csv";
+			String outPath = GlobalSettings.getHomeDir()+"spot_routine_a/";
+			String strCSVMaster = GlobalSettings.getHomeDir()+"/stats_spot_routine_a.csv";
 
 
 			Path dir = Paths.get(baseDirectory, set);
@@ -80,7 +80,7 @@ public class AgeSpotAnalysisBatchCommanda implements Command {
 				if (id.equals(id1)) {
 					try {
 						module = command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "show", false, "ignoreEdge",
-								false, "method", "Default", "mthreshold", 0, "erodeCycles", 3, "minSize", 100,
+								false, "method", "Automatic", "mthreshold", 0, "erodeCycles", 3, "minSize", 100,
 								"maxSize", 10000000, "outPath", outPath, "edgeThresh", 50, "strCSVMaster", strCSVMaster,
 								"strRoutine", strRoutine).get();
 

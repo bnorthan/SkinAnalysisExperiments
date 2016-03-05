@@ -44,7 +44,7 @@ import net.imglib2.type.numeric.real.FloatType;
 /**
  * Test starting point
  */
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>Skin Analysis>Skin Analysis base")
+@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>Skin Analysis>Skin Analysis")
 public class SkinAnalysis<T extends RealType<T>> implements Command {
 
 	@Parameter
@@ -65,11 +65,11 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 	@Parameter(required = false)
 	private boolean show = false;
 
-	@Parameter(required = false)
+	@Parameter(required = false, label = "Ignore Edge")
 	private boolean ignoreEdge = false;
 
-	@Parameter(required = false)
-	private String method = "Default";
+	@Parameter(required = false, label = "Method", choices = { "Manual", "Automatic" })
+	private String method = "Automatic";
 
 	@Parameter(required = false)
 	private Double mthreshold;
@@ -140,7 +140,7 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			FloatType t;
 
 			// calculate the threshold
-			if (method != "Manual") {
+			if (!method.equals("Manual")) {
 				// if not using a manual threshold calculate auto threshold
 				// using ij1 method
 
@@ -167,7 +167,7 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 
 			// it will be more convenient if the output is unsigned byte type
 			Img<UnsignedByteType> byteImgThresholded = ops.create().img(bitImgThresholded, new UnsignedByteType());
-		
+
 			// so create a scaler op
 			Op scale = ops.op(Ops.Convert.Scale.class, UnsignedByteType.class, BitType.class);
 
@@ -191,8 +191,8 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			thresholded = new Duplicator().run(thresholded);
 
 			// this command calculate stats inside and outside the mask
-			module = cmd.run(MaskStatsCommand.class, true, "mask", ImageJFunctions.wrapByte(thresholded),
-					"intensity", ImageJFunctions.wrapFloat(L)).get();
+			module = cmd.run(MaskStatsCommand.class, true, "mask", ImageJFunctions.wrapByte(thresholded), "intensity",
+					ImageJFunctions.wrapFloat(L)).get();
 
 			// create a header for .csv file
 			final ArrayList<Object> header = new ArrayList<Object>(Arrays.asList("image name", "method", "percent",

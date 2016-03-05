@@ -57,8 +57,8 @@ public class PregnancyMaskBatchCommand implements Command {
 
 		for (String set : imageSets) {
 			
-			String outPath = "/home/bnorthan/images/evalulab/Analysis_01_22_2016/mask";
-			String strCSVMaster = "/home/bnorthan/images/evalulab/Analysis_01_22_2016/mask.csv";
+			String outPath = GlobalSettings.getHomeDir()+"mask/";
+			String strCSVMaster = GlobalSettings.getHomeDir()+"mask.csv";
 
 
 			Path dir = Paths.get(baseDirectory, set);
@@ -78,7 +78,7 @@ public class PregnancyMaskBatchCommand implements Command {
 				if (id.equals(id1)) {
 					try {
 						module = command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "show", false, "ignoreEdge",
-								false, "method", "Default", "mthreshold", 0, "erodeCycles", 0, "minSize", 1, "maxSize",
+								false, "method", "Automatic", "mthreshold", 0, "erodeCycles", 0, "minSize", 1, "maxSize",
 								10000000, "outPath", outPath, "edgeThresh", 0, "strCSVMaster", strCSVMaster,
 								"strRoutine", "mask").get();
 

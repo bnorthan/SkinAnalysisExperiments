@@ -11,7 +11,7 @@ import com.truenorth.batch.AbstractBatchCommand;
 import ij.ImagePlus;
 import net.imagej.Dataset;
 
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>Skin Analysis->Skin Analysis Batch")
+@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>Skin Analysis>Skin Analysis Batch")
 public class SkinAnalysisBatchCommand extends AbstractBatchCommand {
 	@Parameter
 	LogService logger;
@@ -22,7 +22,7 @@ public class SkinAnalysisBatchCommand extends AbstractBatchCommand {
 	protected void processImage(ImagePlus imgPlus, Dataset dataSet) {
 		try {
 			command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "dataset", dataSet, "show", false, "ignoreEdge",
-					false, "method", "Default", "erodeCycles", 3).get();
+					false, "method", "Automatic", "erodeCycles", 3).get();
 		} catch (Exception ex) {
 			System.out.println("exception: " + ex);
 		}

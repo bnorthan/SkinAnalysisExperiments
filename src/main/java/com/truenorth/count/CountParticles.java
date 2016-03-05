@@ -40,6 +40,7 @@ public class CountParticles implements Command {
 
 	public void run() {
 
+		// Create the results table
 		ResultsTable rt = new ResultsTable();
 
 		if (table == null) {
@@ -55,16 +56,18 @@ public class CountParticles implements Command {
 				Measurements.AREA | Measurements.MEAN | Measurements.ELLIPSE | Measurements.CIRCULARITY, rt, minSize,
 				maxSize, minCircularity, maxCircularity);
 
-		pa.setRoiManager(roim);
+		ParticleAnalyzer.setRoiManager(roim);
 
 		pa.setHideOutputImage(true);
 
+		// analyze
 		if (pa.analyze(imgPlus)) {
 			System.out.println("All ok");
 		} else {
 			System.out.println("There was a problem in analyzing");
 		}
 
+		// return array lists
 		ArrayList<Double> areas = new ArrayList<Double>();
 		ArrayList<Double> circles = new ArrayList<Double>();
 

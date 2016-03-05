@@ -44,8 +44,7 @@ public class AgeSpotAnalysisBatchCommandb implements Command {
 		DirectoryChooser dialog = new DirectoryChooser("test");
 
 		String baseDirectory = dialog.getDirectory();
-		// String outptutDirectory =
-
+		
 		String strRoutine = "spot_autoD0_D84";
 
 		/*
@@ -61,8 +60,8 @@ public class AgeSpotAnalysisBatchCommandb implements Command {
 
 		for (String set : imageSets) {
 
-			String outPath = "/home/bnorthan/images/evalulab/Analysis_02_08_2016/spot_routine_b";
-			String strCSVMaster = "/home/bnorthan/images/evalulab/Analysis_02_08_2016/stats_spot_routine_b.csv";
+			String outPath = GlobalSettings.getHomeDir()+"spot_routine_b/";
+			String strCSVMaster = GlobalSettings.getHomeDir()+"stats_spot_routine_b.csv";
 
 			Path dir = Paths.get(baseDirectory, set);
 			System.out.println(dir.toString());
@@ -88,7 +87,7 @@ public class AgeSpotAnalysisBatchCommandb implements Command {
 						temp = strCSVMaster;
 
 					module = command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "show", false, "ignoreEdge",
-							false, "method", "Default", "mthreshold", 0, "erodeCycles", 3, "minSize", 100, "maxSize",
+							false, "method", "Automatic", "mthreshold", 0, "erodeCycles", 3, "minSize", 100, "maxSize",
 							10000000, "outPath", outPath, "edgeThresh", 70, "strCSVMaster", temp, "strRoutine",
 							strRoutine).get();
 

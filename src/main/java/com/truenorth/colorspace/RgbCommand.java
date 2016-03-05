@@ -9,7 +9,7 @@ import ij.ImagePlus;
 import ij.plugin.ChannelSplitter;
 import net.imglib2.type.numeric.RealType;
 
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>ColorSpace>RGB")
+@Plugin(type = Command.class, headless = true)//, menuPath = "Plugins>Evalulab>ColorSpace>RGB")
 public class RgbCommand<T extends RealType<T>> implements Command {
 
 	@Parameter

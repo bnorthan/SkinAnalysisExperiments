@@ -3,7 +3,6 @@ package com.truenorth.colorspace;
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
-import org.scijava.plugin.Plugin;
 
 import ij.IJ;
 import ij.ImagePlus;
@@ -11,6 +10,12 @@ import ij.plugin.SubstackMaker;
 import ij.process.ImageConverter;
 import net.imglib2.type.numeric.RealType;
 
+/** 
+ * 
+ * @author bnorthan
+ *
+ * @param <T>
+ */
 abstract public class AbstractColorSpaceCommand<T extends RealType<T>> implements Command {
 
 	@Parameter
