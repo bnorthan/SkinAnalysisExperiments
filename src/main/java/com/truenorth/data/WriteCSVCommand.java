@@ -3,6 +3,9 @@ package com.truenorth.data;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -20,7 +23,7 @@ public class WriteCSVCommand implements Command {
 	private String fileName;
 
 	@Parameter
-	private Hashtable<String, ArrayList<Double>> table;
+	private ArrayList<Object> data;
 
 	@Override
 	public void run() {
@@ -31,46 +34,11 @@ public class WriteCSVCommand implements Command {
 		CSVPrinter csvFilePrinter = null;
 
 		try {
-			fileWriter = new FileWriter(fileName);
 
+			fileWriter = new FileWriter(fileName, true);
 			csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
 
-			Enumeration names = table.keys();
-
-			ArrayList<ArrayList<Double>> rows = new ArrayList<ArrayList<Double>>();
-
-			boolean end = false;
-
-			ArrayList<String> header = new ArrayList<String>();
-
-			while (names.hasMoreElements()) {
-				String str = (String) names.nextElement();
-				header.add(str);
-			}
-
-			int r = 0;
-			while (end == false) {
-				names = table.keys();
-
-				ArrayList<Double> row = new ArrayList<Double>();
-				while (names.hasMoreElements()) {
-					String str = (String) names.nextElement();
-
-					ArrayList<Double> list = table.get(str);
-					row.add(list.get(r));
-
-					if (r == list.size() - 1)
-						end = true;
-				}
-				rows.add(row);
-				r++;
-			}
-
-			csvFilePrinter.printRecord(header);
-
-			for (ArrayList<Double> row : rows) {
-				csvFilePrinter.printRecord(row);
-			}
+			csvFilePrinter.printRecord(data);
 
 		} catch (Exception e) {
 
