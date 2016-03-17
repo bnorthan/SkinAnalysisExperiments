@@ -1,6 +1,7 @@
 package com.truenorth.skinanalysis;
 
 import java.awt.Color;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,7 +22,7 @@ import com.truenorth.colorspace.RgbCommand;
 import com.truenorth.count.CountParticles;
 import com.truenorth.count.FilterEdgeParticlesCommand;
 import com.truenorth.count.MaskStatsCommand;
-import com.truenorth.data.WriteCSVCommand2;
+import com.truenorth.data.WriteCSVCommand;
 import com.truenorth.segment.ErodeCommand;
 import com.truenorth.utils.ROIUtils;
 
@@ -33,6 +34,7 @@ import ij.plugin.frame.RoiManager;
 import net.imagej.ops.Op;
 import net.imagej.ops.OpService;
 import net.imagej.ops.Ops;
+import net.imglib2.IterableInterval;
 import net.imglib2.histogram.Histogram1d;
 import net.imglib2.img.Img;
 import net.imglib2.img.display.imagej.ImageJFunctions;
@@ -44,7 +46,7 @@ import net.imglib2.type.numeric.real.FloatType;
 /**
  * Test starting point
  */
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>Skin Analysis>Skin Analysis")
+@Plugin(type = Command.class, headless = true /*menuPath = "Evalulab>SkinSpotDetection"*/)
 public class SkinAnalysis<T extends RealType<T>> implements Command {
 
 	@Parameter
@@ -60,13 +62,10 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 	private UIService ui;
 
 	@Parameter
-	private ImagePlus imgPlus;
+	private ImagePlus imp;
 
 	@Parameter(required = false)
 	private boolean show = false;
-
-	@Parameter(required = false, label = "Ignore Edge")
-	private boolean ignoreEdge = false;
 
 	@Parameter(required = false, label = "Method", choices = { "Manual", "Automatic" })
 	private String method = "Automatic";
@@ -83,14 +82,17 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 	@Parameter(required = false)
 	private int maxSize = 10000000;
 
-	@Parameter(required = false)
-	private String outPath = "results";
-
+	@Parameter(required = false,style="directory")
+	private File outPath=new File("C:\\Brian2016\\Images\\Evalulab\\ImagesJan2016\\");
+	
 	@Parameter(required = false)
 	private int edgeThresh = 50;
 
+	//@Parameter(required = false)
+	//private String strCSVMaster = null;
+	
 	@Parameter(required = false)
-	private String strCSVMaster = null;
+	private File fileCSVMaster=new File("C:\\Brian2016\\Images\\Evalulab\\ImagesJan2016\\stats_spot_routine_b.csv");
 
 	@Parameter(required = false)
 	private String strRoutine = null;
@@ -107,17 +109,11 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 
 			// print some diagnostics
 			System.out.println("Skin Analysis");
-			log.info("The current image is, " + imgPlus.getTitle() + "!");
-			log.info("params: ig:" + ignoreEdge + " m:" + method + " er:" + erodeCycles + " mt:" + mthreshold);
-
-			// get the roi
-			Roi roi = imgPlus.getRoi();
-
-			long x1 = (long) (roi.getBounds().getX());
-			long y1 = (long) (roi.getBounds().getY());
+			log.info("The current image is, " + imp.getTitle() + "!");
+			log.info("params: show"+show+" edgeThresh:" + edgeThresh + " m:" + method + " er:" + erodeCycles + " mt:" + mthreshold);
 
 			// use the duplicator to make a duplicate
-			ImagePlus croppedPlus = new Duplicator().run(imgPlus);
+			ImagePlus croppedPlus = new Duplicator().run(imp);
 
 			croppedPlus.show();
 
@@ -129,11 +125,7 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 
 			// get L channel
 			ImagePlus L = (ImagePlus) module.getOutput("c1");
-			if (show) {
-				L.setTitle("L channel");
-				L.show();
-			}
-
+		
 			// convert to Img
 			Img<FloatType> imgL = ImageJFunctions.convertFloat(L);
 
@@ -158,7 +150,7 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			}
 
 			// apply the threshold
-			Img<BitType> bitImgThresholded = ops.threshold().apply(imgL, t);
+			IterableInterval<BitType> bitImgThresholded = ops.threshold().apply(imgL, t);
 
 			// TODO: add look for dark objects to threshold ops
 			for (BitType b : bitImgThresholded) {
@@ -174,21 +166,22 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			// and use a map to apply the scaling to each pixel
 			ops.map(byteImgThresholded, bitImgThresholded, scale);
 
+			// Img<UnsignedByteType>
+			// byteImgThresholded=(Img<UnsignedByteType>)ops.convert().uint8(bitImgThresholded);
+
 			// go back to IJ1
 			ImagePlus thresholded = ImageJFunctions.wrapUnsignedByte(byteImgThresholded, "thresholded");
-
-			if (show)
-				thresholded.show();
-
+			
 			// erode command
 			if (erodeCycles > 0) {
 				module = cmd.run(ErodeCommand.class, false, "imp", thresholded, "erodeCycles", erodeCycles).get();
 			}
 
-			// HACK: TODO look into this bug, seems we need to wcate to get
+			// HACK: TODO look into this bug, seems we need to duplicate to get
 			// image to update
 			thresholded.updateAndDraw();
 			thresholded = new Duplicator().run(thresholded);
+			thresholded.show();
 
 			// this command calculate stats inside and outside the mask
 			module = cmd.run(MaskStatsCommand.class, true, "mask", ImageJFunctions.wrapByte(thresholded), "intensity",
@@ -202,7 +195,7 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			final ArrayList<Object> data = new ArrayList<Object>();
 
 			// add name of image
-			data.add(imgPlus.getTitle());
+			data.add(imp.getTitle());
 
 			// add type of routine used
 			data.add(strRoutine);
@@ -257,39 +250,42 @@ public class SkinAnalysis<T extends RealType<T>> implements Command {
 			croppedPlus.updateAndDraw();
 
 			// add offsets to ROIs and draw on original image
-			ROIUtils.addOffsets(rois, x1, y1);
-			ROIUtils.drawParticlesOnImage(imgPlus, filteredRois, Color.CYAN);
-			imgPlus.updateAndDraw();
+			//ROIUtils.addOffsets(rois, (long) imp.getRoi().getBounds().getX(), (long) imp.getRoi().getBounds().getY());
+			//ROIUtils.drawParticlesOnImage(imp, filteredRois, Color.CYAN);
+			//imp.updateAndDraw();
 
-			String name = imgPlus.getShortTitle();
+			String name = imp.getShortTitle();
 
-			Path newDir = Paths.get(outPath);
+			Path newDir = Paths.get(outPath.getAbsolutePath());
 
 			if (Files.notExists(newDir))
 				Files.createDirectory(newDir);
 
 			Path fullName = Paths.get(newDir.toString(), name);
 
-			String strCSVName = fullName.toString() + ".csv";
 			String croppedName = fullName.toString() + "_cropped" + ".tif";
-
-			System.out.println("the path and name is:" + strCSVName);
 			IJ.save(croppedPlus, croppedName);
-
+			
 			// if csv specified write measurements to the file
-			if (strCSVMaster != null) {
+			if (fileCSVMaster != null) {
+				
+				String strCSVMaster=fileCSVMaster.getAbsolutePath();
+
 
 				if (!Files.exists(Paths.get(strCSVMaster))) {
-					cmd.run(WriteCSVCommand2.class, true, "fileName", strCSVMaster, "data", header).get();
+					cmd.run(WriteCSVCommand.class, true, "fileName", strCSVMaster, "data", header).get();
 				}
 
-				cmd.run(WriteCSVCommand2.class, true, "fileName", strCSVMaster, "data", data).get();
+				cmd.run(WriteCSVCommand.class, true, "fileName", strCSVMaster, "data", data).get();
 			}
+			
+			thresholded.changes=false;
+			thresholded.close();
 
-			// if (!show) {
-			croppedPlus.changes = false;
-			croppedPlus.close();
-			// }
+			if (!show) {
+				croppedPlus.changes = false;
+				croppedPlus.close();
+			}
 
 		} catch (Exception ex) {
 			System.out.println("exception: " + ex);

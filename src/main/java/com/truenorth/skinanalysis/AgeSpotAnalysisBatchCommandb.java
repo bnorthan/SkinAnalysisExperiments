@@ -1,7 +1,9 @@
 package com.truenorth.skinanalysis;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import org.scijava.command.Command;
 import org.scijava.command.CommandService;
@@ -20,7 +22,7 @@ import ij.io.DirectoryChooser;
  * 
  * Test starting point
  */
-@Plugin(type = Command.class, headless = true, menuPath = "Plugins>Evalulab>Skin Analysis>AgeSpotBatch-b")
+@Plugin(type = Command.class, headless = true, menuPath = "Evalulab>SkinSpotBatch-b")
 public class AgeSpotAnalysisBatchCommandb implements Command {
 
 	@Parameter
@@ -36,8 +38,8 @@ public class AgeSpotAnalysisBatchCommandb implements Command {
 	CommandService command;
 
 	/**
-	 * This routine calculates the threshold as the average between the threshold at day 0 and day 84, then applies that 
-	 * threshold to all images
+	 * This routine calculates the threshold as the average between the
+	 * threshold at day 0 and day 84, then applies that threshold to all images
 	 */
 	@Override
 	public void run() {
@@ -45,6 +47,25 @@ public class AgeSpotAnalysisBatchCommandb implements Command {
 
 		String baseDirectory = dialog.getDirectory();
 		
+		File[] files=new File(baseDirectory).listFiles();
+
+		ArrayList<String> imageSets=new ArrayList<String>();
+		
+		for (File file : files) {
+			if (file.isDirectory()) {
+				String name=file.getName();
+				
+				try {
+					logger.info(name+" "+Integer.valueOf(name));
+					imageSets.add(name);
+				}
+				catch (Exception e) {
+					// continue
+				}
+				
+			}
+		}
+
 		String strRoutine = "spot_autoD0_D84";
 
 		/*
@@ -53,29 +74,29 @@ public class AgeSpotAnalysisBatchCommandb implements Command {
 		 * "015", "016", "017", "018", "019", "020" };
 		 */
 
-		String[] imageSets = new String[] { "010", "011" };
+		//String[] imageSets = new String[] { "010", "011" };
 
-		String[] ids_firstpass = new String[] { "D0", "D84" };
-		String[] ids = new String[] { "D28", "D56", "D84" };
+		String[] days_firstpass = new String[] { "D0", "D84" };
+		String[] days = new String[] { "D28", "D56", "D84" };
 
 		for (String set : imageSets) {
-
-			String outPath = GlobalSettings.getHomeDir()+"spot_routine_b/";
-			String strCSVMaster = GlobalSettings.getHomeDir()+"stats_spot_routine_b.csv";
 
 			Path dir = Paths.get(baseDirectory, set);
 			System.out.println(dir.toString());
 			double threshold = 0;
 			double n = 0;
 
-			for (String id : ids_firstpass) {
-				String name = set + "-" + id + ".tif";
+			String outPath = baseDirectory + "spot_routine_b/";
+			String strCSVMaster = baseDirectory + "stats_spot_routine_b.csv";
+
+			for (String day : days_firstpass) {
+				String name = set + "-" + day + ".tif";
 				name = Paths.get(dir.toString(), name).toString();
 				System.out.println("    " + name);
 
-				ImagePlus imgPlus = IJ.openImage(name);
+				ImagePlus imp = IJ.openImage(name);
 
-				imgPlus.show();
+				imp.show();
 
 				Module module = null;
 
@@ -86,17 +107,16 @@ public class AgeSpotAnalysisBatchCommandb implements Command {
 					if (n == 0)
 						temp = strCSVMaster;
 
-					module = command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "show", false, "ignoreEdge",
-							false, "method", "Automatic", "mthreshold", 0, "erodeCycles", 3, "minSize", 100, "maxSize",
-							10000000, "outPath", outPath, "edgeThresh", 70, "strCSVMaster", temp, "strRoutine",
-							strRoutine).get();
+					module = command.run(SkinAnalysis.class, true, "imp", imp, "show", false, "method", "Automatic",
+							"mthreshold", 0, "erodeCycles", 3, "minSize", 100, "maxSize", 10000000, "outPath", outPath,
+							"edgeThresh", 70, "fileCSVMaster", temp, "strRoutine", strRoutine).get();
 
 					threshold = threshold + (Double) module.getOutput("threshold");
 					n++;
 					System.out.println("Threshold is: " + threshold);
 
-					imgPlus.changes = false;
-					imgPlus.close();
+					imp.changes = false;
+					imp.close();
 
 				} catch (Exception ex) {
 					System.out.println("exception: " + ex);
@@ -106,30 +126,28 @@ public class AgeSpotAnalysisBatchCommandb implements Command {
 			threshold = threshold / n;
 			System.out.println("Threshold is: " + threshold);
 
-			for (String id : ids) {
-				String name = set + "-" + id + ".tif";
+			for (String day : days) {
+				String name = set + "-" + day + ".tif";
 				name = Paths.get(dir.toString(), name).toString();
 				System.out.println("    " + name);
 
-				ImagePlus imgPlus = IJ.openImage(name);
+				ImagePlus imp = IJ.openImage(name);
 
-				imgPlus.show();
-				
+				imp.show();
+
 				try {
 
-								
 					System.out.println("reused threshold is: " + threshold);
-					command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "show", false, "ignoreEdge",
-							false, "method", "Manual", "mthreshold", threshold, "erodeCycles", 3, "minSize", 100,
-							"maxSize", 10000000, "outPath", outPath, "edgeThresh", 50, "strCSVMaster", strCSVMaster,
-							"strRoutine", strRoutine).get();
+					command.run(SkinAnalysis.class, true, "imp", imp, "show", false, "method", "Manual", "mthreshold",
+							threshold, "erodeCycles", 3, "minSize", 100, "maxSize", 10000000, "outPath", outPath,
+							"edgeThresh", 50, "fileCSVMaster", strCSVMaster, "strRoutine", strRoutine).get();
 
 				} catch (Exception ex) {
 					System.out.println("exception: " + ex);
 				}
 
-				imgPlus.changes = false;
-				imgPlus.close();
+				imp.changes = false;
+				imp.close();
 
 			}
 
