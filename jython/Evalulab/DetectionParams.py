@@ -40,8 +40,7 @@ class DetectionParams(object):
 		imp.setCalibration(calibration)
 
 	def readCsv(self):
-		#settingsdir = os.path.join(os.getcwd(), 'plugins/Evalulab/');
-		settingsdir = os.path.join(IJ.getDirectory('imagej'), 'plugins/Evalulab/');
+		settingsdir = os.path.join(IJ.getDirectory('imagej'), 'plugins/Scripts/Evalulab/');
 
 		print 'IJm dir:'+IJ.getDirectory('imagej')
 		print settingsdir

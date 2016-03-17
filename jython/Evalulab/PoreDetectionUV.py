@@ -26,7 +26,7 @@ import os
 import copy
 
 homedir=IJ.getDirectory('imagej')
-jythondir=os.path.join(homedir,'macros/Evalulab/')
+jythondir=os.path.join(homedir,'plugins/Scripts/Evalulab/')
 jythondir=os.path.abspath(jythondir)
 sys.path.append(jythondir)
 

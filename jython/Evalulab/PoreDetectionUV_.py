@@ -11,7 +11,7 @@ import sys
 import time
 
 homedir=IJ.getDirectory('imagej')
-jythondir=os.path.join(homedir,'plugins/Evalulab/')
+jythondir=os.path.join(homedir,'plugins/Scripts/Evalulab/')
 jythondir=os.path.abspath(jythondir)
 sys.path.append(jythondir)
 
