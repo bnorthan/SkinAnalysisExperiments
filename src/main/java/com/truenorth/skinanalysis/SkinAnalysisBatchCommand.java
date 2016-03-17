@@ -21,8 +21,8 @@ public class SkinAnalysisBatchCommand extends AbstractBatchCommand {
 
 	protected void processImage(ImagePlus imgPlus, Dataset dataSet) {
 		try {
-			command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "dataset", dataSet, "show", false, "ignoreEdge",
-					false, "method", "Automatic", "erodeCycles", 3).get();
+			command.run(SkinAnalysis.class, true, "imgPlus", imgPlus, "dataset", dataSet, "show", false, "method",
+					"Automatic", "erodeCycles", 3).get();
 		} catch (Exception ex) {
 			System.out.println("exception: " + ex);
 		}
